@@ -62,7 +62,7 @@ extension UIImage {
         UIGraphicsEndImageContext()
         
         //Create the mask
-        let context = CGBitmapContextCreate(nil, CGImageGetWidth(mask.CGImage), CGImageGetHeight(mask.CGImage), 8, 0, nil, CGBitmapInfo(rawValue: CGImageAlphaInfo.Only.rawValue).rawValue)
+        let context = CGBitmapContextCreate(nil, CGImageGetWidth(mask.CGImage), CGImageGetHeight(mask.CGImage), 8, 0, CGColorSpaceCreateDeviceRGB(), CGBitmapInfo(rawValue: CGImageAlphaInfo.Only.rawValue).rawValue)
         CGContextDrawImage(context, CGRectMake(0, 0, mask.size.width * mask.scale, mask.size.height * mask.scale), mask.CGImage)
         let maskRef: CGImageRef = CGBitmapContextCreateImage(context)!
         
@@ -99,7 +99,7 @@ extension UIImage {
         UIGraphicsEndImageContext()
         
         //Create the mask
-        let context = CGBitmapContextCreate(nil, CGImageGetWidth(mask.CGImage), CGImageGetHeight(mask.CGImage), 8, 0, nil, CGBitmapInfo(rawValue: CGImageAlphaInfo.Only.rawValue).rawValue)
+        let context = CGBitmapContextCreate(nil, CGImageGetWidth(mask.CGImage), CGImageGetHeight(mask.CGImage), 8, 0, CGColorSpaceCreateDeviceRGB(), CGBitmapInfo(rawValue: CGImageAlphaInfo.Only.rawValue).rawValue)
         CGContextDrawImage(context, CGRectMake(0, 0, mask.size.width * mask.scale, mask.size.height * mask.scale), mask.CGImage)
         let maskRef: CGImageRef = CGBitmapContextCreateImage(context)!
         

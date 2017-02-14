@@ -28,13 +28,47 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         imgView?.image = UIImage(named: "eraser.png")
         imgView?.contentMode = .ScaleAspectFit
         
-        imgViewBack?.opaque = false
-        imgViewBack?.alpha = 0.9
+        imgViewBack?.opaque = true
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func maskImageWithCoreImage(image: UIImage, maskImage: UIImage?) -> UIImage {
+        guard maskImage != nil else {
+            return image
+        }
+        
+//        let maskRef = maskImage!.CGImage
+//        let mask = CGImageMaskCreate(CGImageGetWidth(maskRef), CGImageGetHeight(maskRef), CGImageGetBitsPerComponent(maskRef), CGImageGetBitsPerPixel(maskRef), CGImageGetBytesPerRow(maskRef), CGImageGetDataProvider(maskRef), nil, false)
+//        let masked = CGImageCreateWithMask(image.CGImage, mask)
+        
+        let context = CIContext(options: nil)
+        
+        let inputImage = CIImage(CGImage: image.CGImage!)
+        let textureImg = UIImage(named: "texture")
+        let bgImage = CIImage(CGImage: textureImg!.CGImage!)
+        let maskCIImage = CIImage(CGImage: (maskImage?.CGImage)!)
+        
+        NSLog(String(image.size))
+        NSLog(String(maskImage?.size))
+        NSLog(String(textureImg!.size))
+        
+        
+        if let filter = CIFilter(name: "CIBlendWithAlphaMask") {
+            filter.setValue(bgImage, forKey: kCIInputImageKey)
+            filter.setValue(inputImage, forKey: kCIInputBackgroundImageKey)
+            filter.setValue(maskCIImage, forKey: kCIInputMaskImageKey)
+            
+            if let result = filter.outputImage {
+                let cgImg = context.createCGImage(result, fromRect: result.extent)
+                return UIImage(CGImage: cgImg)
+            }
+        }
+        
+        return image
     }
     
     func maskImage(image: UIImage, maskImage:UIImage?) -> UIImage {
@@ -68,7 +102,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 
     
     @IBAction func maskImageClicked(sender: AnyObject?) {
-        imgView?.image = maskImage(maskImage!, maskImage: mainImage!)
+        imgView?.image = maskImageWithCoreImage(mainImage!, maskImage: maskImage)
+        //imgView?.image = maskImage(maskImage!, maskImage: mainImage!)
         //imgView?.image = mainImage!.withInvertedMaskFrom(maskImage!, position: CGPointZero)
         //imgView?.image = UIImage.maskedImage(image: maskImage!, withMask: mainImage!)
         imgViewBack?.image = nil
@@ -76,20 +111,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     }
     
     @IBAction func replaceImage(sender: AnyObject?) {
-        UIGraphicsBeginImageContext(imgViewBack!.bounds.size)
-        imgViewBack!.image?.drawInRect(CGRect(x: 0, y: 0,
-            width: (imgViewBack?.frame.size.width)!, height: (imgViewBack?.frame.size.height)!))
+        imgViewBack?.alpha = 1.0
+        UIGraphicsBeginImageContextWithOptions(imgViewBack!.bounds.size, false, 0.0)
+        imgViewBack?.layer.renderInContext( UIGraphicsGetCurrentContext()! )
         maskImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        //UIImageWriteToSavedPhotosAlbum(maskImage!, nil, nil, nil)
-        
-        //imgView?.image = maskImage?.invertedImage()
-        
-//        let filter = CIFilter(name: "CIColorInvert")
-//        filter?.setValue(CIImage(image: maskImage!), forKey: kCIInputImageKey)
-//        let newImg = UIImage(CIImage: (filter?.outputImage)!)
-//        maskImage = newImg
+        UIGraphicsBeginImageContextWithOptions(imgView!.bounds.size, false, 0.0)
+        imgView?.layer.renderInContext( UIGraphicsGetCurrentContext()! )
+        mainImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
         
         imgView?.image = maskImage
         imgViewBack?.image = nil
@@ -135,6 +166,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             
             //imgView?.backgroundColor = UIColor(patternImage:  (imgView?.image)!)
             
+            imgViewBack?.alpha = 0.5
             imgViewBack?.image = nil
             maskImage = nil
         }
@@ -246,7 +278,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             
             CGContextSetLineCap(context, CGLineCap.Round)
             CGContextSetLineWidth(context, 20.0)
-            CGContextSetRGBStrokeColor(context, 0.0, 0.0, 0.0, 0.5)
+            CGContextSetRGBStrokeColor(context, 0.0, 0.0, 0.0, 1.0)
             
             CGContextBeginPath(context)
             CGContextMoveToPoint(context, (lastPoint?.x)!, (lastPoint?.y)!)
