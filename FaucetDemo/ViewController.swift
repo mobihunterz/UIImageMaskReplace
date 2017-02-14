@@ -7,16 +7,19 @@
 //
 
 import UIKit
+import CoreImage
 
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     @IBOutlet weak var imgView: UIImageView?
     @IBOutlet weak var imgViewBack: UIImageView?
-    @IBOutlet weak var maskView: UIView?
     
     private var previousPoint1:CGPoint?
     private var previousPoint2:CGPoint?
     private var lastPoint: CGPoint?
     private var isErase: Bool = false
+    
+    private var mainImage:UIImage?
+    private var maskImage:UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -26,12 +29,70 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         imgView?.contentMode = .ScaleAspectFit
         
         imgViewBack?.opaque = false
-        imgViewBack?.alpha = 0.4
+        imgViewBack?.alpha = 0.9
     }
 
     override func didReceiveMemoryWarning() {
         super.didReceiveMemoryWarning()
         // Dispose of any resources that can be recreated.
+    }
+    
+    func maskImage(image: UIImage, maskImage:UIImage?) -> UIImage {
+        guard maskImage != nil else {
+            return image
+        }
+        
+//        let bitmapInfo = CGBitmapInfo(rawValue: CGImageAlphaInfo.PremultipliedLast.rawValue).rawValue
+//        let colorSpace = CGColorSpaceCreateDeviceRGB()!
+//        let context = CGBitmapContextCreate(nil, CGImageGetWidth(maskImage!.CGImage), CGImageGetHeight(maskImage!.CGImage), 8, 0, colorSpace, bitmapInfo)
+//        
+//        CGContextDrawImage(context, CGRectMake(0, 0, (maskImage?.size.width)!, (maskImage?.size.height)!), maskImage?.CGImage)
+//        
+//        let maskRef: CGImageRef = CGBitmapContextCreateImage(context)!
+//        let masked: CGImageRef = CGImageCreateWithMask(image.CGImage, maskRef)!
+//        
+//        let icon: UIImage = UIImage(CGImage: masked)
+//        
+//        return icon
+        
+        let maskRef = maskImage!.CGImage
+        let mask = CGImageMaskCreate(CGImageGetWidth(maskRef), CGImageGetHeight(maskRef), CGImageGetBitsPerComponent(maskRef), CGImageGetBitsPerPixel(maskRef), CGImageGetBytesPerRow(maskRef), CGImageGetDataProvider(maskRef), nil, false)
+        let masked = CGImageCreateWithMask(image.CGImage, mask)
+        
+        guard masked != nil else {
+            return image
+        }
+        
+        return UIImage(CGImage: masked!)
+    }
+
+    
+    @IBAction func maskImageClicked(sender: AnyObject?) {
+        imgView?.image = maskImage(maskImage!, maskImage: mainImage!)
+        //imgView?.image = mainImage!.withInvertedMaskFrom(maskImage!, position: CGPointZero)
+        //imgView?.image = UIImage.maskedImage(image: maskImage!, withMask: mainImage!)
+        imgViewBack?.image = nil
+        //maskImage = nil
+    }
+    
+    @IBAction func replaceImage(sender: AnyObject?) {
+        UIGraphicsBeginImageContext(imgViewBack!.bounds.size)
+        imgViewBack!.image?.drawInRect(CGRect(x: 0, y: 0,
+            width: (imgViewBack?.frame.size.width)!, height: (imgViewBack?.frame.size.height)!))
+        maskImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIGraphicsEndImageContext()
+        
+        //UIImageWriteToSavedPhotosAlbum(maskImage!, nil, nil, nil)
+        
+        //imgView?.image = maskImage?.invertedImage()
+        
+//        let filter = CIFilter(name: "CIColorInvert")
+//        filter?.setValue(CIImage(image: maskImage!), forKey: kCIInputImageKey)
+//        let newImg = UIImage(CIImage: (filter?.outputImage)!)
+//        maskImage = newImg
+        
+        imgView?.image = maskImage
+        imgViewBack?.image = nil
     }
 
     @IBAction func loadGallery(sender: AnyObject?) {
@@ -62,7 +123,8 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             imgView?.contentMode = .ScaleAspectFit
-            imgView?.image = pickedImage
+            mainImage = pickedImage
+            imgView?.image = mainImage
             
             imgViewBack?.contentMode = .ScaleAspectFit
             //imgViewBack?.image = pickedImage
@@ -74,6 +136,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             //imgView?.backgroundColor = UIColor(patternImage:  (imgView?.image)!)
             
             imgViewBack?.image = nil
+            maskImage = nil
         }
     }
     
