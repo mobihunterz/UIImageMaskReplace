@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.Storyboard.XIB" version="3.0" toolsVersion="8191" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" initialViewController="BYZ-38-t0r">
+    <dependencies>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="8154"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+    </dependencies>
+    <scenes>
+        <!--View Controller-->
+        <scene sceneID="tne-QT-ifu">
+            <objects>
+                <viewController id="BYZ-38-t0r" customClass="ViewController" customModule="FaucetDemo" customModuleProvider="target" sceneMemberID="viewController">
+                    <layoutGuides>
+                        <viewControllerLayoutGuide type="top" id="y3c-jy-aDJ"/>
+                        <viewControllerLayoutGuide type="bottom" id="wfy-db-euE"/>
+                    </layoutGuides>
+                    <view key="view" contentMode="scaleToFill" id="8bC-Xf-vdC">
+                        <rect key="frame" x="0.0" y="0.0" width="600" height="600"/>
+                        <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                        <subviews>
+                            <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ptI-Hr-eGh">
+                                <rect key="frame" x="268" y="550" width="65" height="40"/>
+                                <animations/>
+                                <constraints>
+                                    <constraint firstAttribute="width" constant="65" id="9If-Ln-egT"/>
+                                    <constraint firstAttribute="height" constant="40" id="kli-Hd-ZDO"/>
+                                </constraints>
+                                <state key="normal" title="Library"/>
+                                <connections>
+                                    <action selector="loadGallery:" destination="BYZ-38-t0r" eventType="touchUpInside" id="uv9-KC-wGf"/>
+                                </connections>
+                            </button>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="4wH-ym-pyn">
+                                <rect key="frame" x="0.0" y="20" width="600" height="520"/>
+                                <animations/>
+                            </imageView>
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="PeZ-KS-3gN">
+                                <rect key="frame" x="0.0" y="20" width="600" height="520"/>
+                                <animations/>
+                            </imageView>
+                            <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ILO-pL-u6W">
+                                <rect key="frame" x="0.0" y="20" width="600" height="520"/>
+                                <animations/>
+                                <color key="backgroundColor" red="1" green="0.56150112543299646" blue="0.0" alpha="0.27000000000000002" colorSpace="calibratedRGB"/>
+                            </view>
+                        </subviews>
+                        <animations/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="custom" customColorSpace="calibratedWhite"/>
+                        <constraints>
+                            <constraint firstItem="4wH-ym-pyn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="3dO-7m-Sdn"/>
+                            <constraint firstItem="ILO-pL-u6W" firstAttribute="trailing" secondItem="4wH-ym-pyn" secondAttribute="trailing" id="81k-fk-19g"/>
+                            <constraint firstItem="wfy-db-euE" firstAttribute="top" secondItem="ptI-Hr-eGh" secondAttribute="bottom" constant="10" id="ApG-Xn-BAz"/>
+                            <constraint firstItem="4wH-ym-pyn" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="CMZ-ih-jLd"/>
+                            <constraint firstAttribute="trailingMargin" secondItem="4wH-ym-pyn" secondAttribute="trailing" constant="-20" id="EFL-u3-SaZ"/>
+                            <constraint firstItem="ILO-pL-u6W" firstAttribute="leading" secondItem="4wH-ym-pyn" secondAttribute="leading" id="G4f-hx-Shd"/>
+                            <constraint firstItem="PeZ-KS-3gN" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="J25-l8-aey"/>
+                            <constraint firstItem="PeZ-KS-3gN" firstAttribute="bottom" secondItem="4wH-ym-pyn" secondAttribute="bottom" id="KWr-mP-Tf8"/>
+                            <constraint firstItem="ILO-pL-u6W" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="O8V-9R-9gG"/>
+                            <constraint firstItem="4wH-ym-pyn" firstAttribute="width" secondItem="8bC-Xf-vdC" secondAttribute="width" id="PIK-Ql-VGN"/>
+                            <constraint firstItem="ptI-Hr-eGh" firstAttribute="top" secondItem="PeZ-KS-3gN" secondAttribute="bottom" constant="53" id="TlC-ki-xkN"/>
+                            <constraint firstItem="PeZ-KS-3gN" firstAttribute="height" secondItem="4wH-ym-pyn" secondAttribute="height" id="VLB-Cf-V58"/>
+                            <constraint firstItem="ILO-pL-u6W" firstAttribute="bottom" secondItem="4wH-ym-pyn" secondAttribute="bottom" id="YZo-Jd-ew8"/>
+                            <constraint firstItem="ILO-pL-u6W" firstAttribute="width" secondItem="4wH-ym-pyn" secondAttribute="width" id="YnL-6y-73X"/>
+                            <constraint firstItem="PeZ-KS-3gN" firstAttribute="top" secondItem="4wH-ym-pyn" secondAttribute="top" id="cwf-ej-V5R"/>
+                            <constraint firstItem="PeZ-KS-3gN" firstAttribute="leading" secondItem="4wH-ym-pyn" secondAttribute="leading" id="cyO-83-2qZ"/>
+                            <constraint firstItem="PeZ-KS-3gN" firstAttribute="width" secondItem="4wH-ym-pyn" secondAttribute="width" id="d6V-kE-430"/>
+                            <constraint firstItem="ILO-pL-u6W" firstAttribute="top" secondItem="4wH-ym-pyn" secondAttribute="top" id="eq6-hp-fiM"/>
+                            <constraint firstItem="4wH-ym-pyn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="gtZ-hS-3ag"/>
+                            <constraint firstItem="4wH-ym-pyn" firstAttribute="top" secondItem="y3c-jy-aDJ" secondAttribute="bottom" id="oxJ-EC-fSu"/>
+                            <constraint firstItem="4wH-ym-pyn" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="rdb-Rc-Slq"/>
+                            <constraint firstItem="ptI-Hr-eGh" firstAttribute="top" secondItem="4wH-ym-pyn" secondAttribute="bottom" constant="10" id="soJ-no-nFE"/>
+                            <constraint firstItem="PeZ-KS-3gN" firstAttribute="trailing" secondItem="4wH-ym-pyn" secondAttribute="trailing" id="tOO-GW-97y"/>
+                            <constraint firstItem="ptI-Hr-eGh" firstAttribute="centerX" secondItem="8bC-Xf-vdC" secondAttribute="centerX" id="tdF-8c-Unh"/>
+                            <constraint firstItem="ILO-pL-u6W" firstAttribute="height" secondItem="4wH-ym-pyn" secondAttribute="height" id="xKu-Q3-CGP"/>
+                            <constraint firstItem="4wH-ym-pyn" firstAttribute="leading" secondItem="8bC-Xf-vdC" secondAttribute="leadingMargin" constant="-20" id="yRD-aL-7tO"/>
+                        </constraints>
+                        <variation key="default">
+                            <mask key="constraints">
+                                <exclude reference="oxJ-EC-fSu"/>
+                                <exclude reference="TlC-ki-xkN"/>
+                            </mask>
+                        </variation>
+                    </view>
+                    <connections>
+                        <outlet property="imgView" destination="4wH-ym-pyn" id="lv7-Bg-TES"/>
+                        <outlet property="imgViewBack" destination="PeZ-KS-3gN" id="rrE-qF-d0b"/>
+                        <outlet property="maskView" destination="ILO-pL-u6W" id="mNs-0N-vSW"/>
+                    </connections>
+                </viewController>
+                <placeholder placeholderIdentifier="IBFirstResponder" id="dkx-z0-nzr" sceneMemberID="firstResponder"/>
+            </objects>
+            <point key="canvasLocation" x="305" y="427"/>
+        </scene>
+    </scenes>
+</document>
