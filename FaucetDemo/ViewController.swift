@@ -12,6 +12,8 @@ import CoreImage
 class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavigationControllerDelegate {
     @IBOutlet weak var imgView: UIImageView?
     @IBOutlet weak var imgViewBack: UIImageView?
+    @IBOutlet weak var colorView: UIView?
+    @IBOutlet weak var textureView: UIImageView?
     
     private var previousPoint1:CGPoint?
     private var previousPoint2:CGPoint?
@@ -20,15 +22,23 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
     
     private var mainImage:UIImage?
     private var maskImage:UIImage?
+    private var textureImage: UIImage?
     
     override func viewDidLoad() {
         super.viewDidLoad()
         // Do any additional setup after loading the view, typically from a nib.
         
-        imgView?.image = UIImage(named: "eraser.png")
+        mainImage = UIImage(named: "eraser.png")
+        imgView?.image = mainImage
         imgView?.contentMode = .ScaleAspectFit
         
         imgViewBack?.opaque = true
+        colorView?.layer.borderWidth = 2.0
+        colorView?.layer.borderColor = UIColor.blackColor().CGColor
+        colorView?.layer.cornerRadius = 10.0
+        
+        textureView?.layer.borderWidth = 2.0
+        textureView?.layer.borderColor = UIColor.blackColor().CGColor
     }
 
     override func didReceiveMemoryWarning() {
@@ -48,13 +58,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         let context = CIContext(options: nil)
         
         let inputImage = CIImage(CGImage: image.CGImage!)
-        let textureImg = UIImage(named: "texture")
-        let bgImage = CIImage(CGImage: textureImg!.CGImage!)
+        let textureImg = UIImage(CGImage: CGImageCreateWithImageInRect(textureImage?.CGImage, CGRect(origin: CGPointZero, size: CGSizeMake(400, 400)))!)
+        
+        UIImageWriteToSavedPhotosAlbum(textureImg, nil, nil, nil)
+        
+        let bgImage = CIImage(CGImage: (textureImg.CGImage)!)
         let maskCIImage = CIImage(CGImage: (maskImage?.CGImage)!)
         
         NSLog(String(image.size))
         NSLog(String(maskImage?.size))
-        NSLog(String(textureImg!.size))
+        NSLog(String(textureImg.size))
         
         
         if let filter = CIFilter(name: "CIBlendWithAlphaMask") {
@@ -63,7 +76,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             filter.setValue(maskCIImage, forKey: kCIInputMaskImageKey)
             
             if let result = filter.outputImage {
-                let cgImg = context.createCGImage(result, fromRect: result.extent)
+                let cgImg = context.createCGImage(result, fromRect: result.extent)      // Time consuming task
                 return UIImage(CGImage: cgImg)
             }
         }
@@ -117,11 +130,6 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         maskImage = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        UIGraphicsBeginImageContextWithOptions(imgView!.bounds.size, false, 0.0)
-        imgView?.layer.renderInContext( UIGraphicsGetCurrentContext()! )
-        mainImage = UIGraphicsGetImageFromCurrentImageContext()
-        UIGraphicsEndImageContext()
-        
         imgView?.image = maskImage
         imgViewBack?.image = nil
     }
@@ -154,8 +162,7 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
         
         if let pickedImage = info[UIImagePickerControllerOriginalImage] as? UIImage {
             imgView?.contentMode = .ScaleAspectFit
-            mainImage = pickedImage
-            imgView?.image = mainImage
+            imgView?.image = pickedImage
             
             imgViewBack?.contentMode = .ScaleAspectFit
             //imgViewBack?.image = pickedImage
@@ -165,6 +172,11 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             //imgViewBack?.addSubview(view)
             
             //imgView?.backgroundColor = UIColor(patternImage:  (imgView?.image)!)
+            
+            UIGraphicsBeginImageContextWithOptions(imgView!.bounds.size, false, 0.0)
+            imgView?.layer.renderInContext( UIGraphicsGetCurrentContext()! )
+            mainImage = UIGraphicsGetImageFromCurrentImageContext()
+            UIGraphicsEndImageContext()
             
             imgViewBack?.alpha = 0.5
             imgViewBack?.image = nil
@@ -292,6 +304,23 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
             //imgView?.alpha = 1.0
             UIGraphicsEndImageContext()
             
+            let loc = touch.locationInView(imgView)
+            let perX = loc.x / (mainImage?.size.width)!
+            let perY = loc.y / (mainImage?.size.height)!
+            //let imgPoint = CGPointMake((imgView?.image?.size.width)! * perX, (imgView?.image?.size.height)! * perY)
+            let imgPoint = CGPointMake((mainImage?.size.width)! * perX * (mainImage?.scale)!, (mainImage?.size.height)! * perY * (mainImage?.scale)!)
+            let color:UIColor = (mainImage?.getPixelColor(imgPoint))!
+            colorView?.backgroundColor = color
+            
+            var texSize = (textureView?.frame.size)
+            texSize?.height *= (mainImage?.scale)!
+            texSize?.width *= (mainImage?.scale)!
+            
+            var areaPoint = imgPoint
+            areaPoint.x -= ((texSize?.width)! / (mainImage?.scale)!)/2.0
+            areaPoint.y -= ((texSize?.height)! / (mainImage?.scale)!)/2.0
+            textureImage = (mainImage?.croppedImage(CGRect(origin: areaPoint, size: texSize!)))
+            textureView?.image = textureImage
             lastPoint = currentPoint
         }
     }
