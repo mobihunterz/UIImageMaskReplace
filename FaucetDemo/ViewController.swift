@@ -56,10 +56,16 @@ class ViewController: UIViewController, UIImagePickerControllerDelegate, UINavig
 //        let masked = CGImageCreateWithMask(image.CGImage, mask)
         
         let context = CIContext(options: nil)
-        
         let inputImage = CIImage(CGImage: image.CGImage!)
-        let textureImg = UIImage(CGImage: CGImageCreateWithImageInRect(textureImage?.CGImage, CGRect(origin: CGPointZero, size: CGSizeMake(400, 400)))!)
         
+//        var textureImg = UIImage(CGImage: CGImageCreateWithImageInRect(textureImage?.CGImage, CGRect(origin: CGPointZero, size: CGSizeMake(400, 400)))!)
+        
+//        let trans = CGAffineTransform()
+//        let filterTex = CIFilter(name: "CIAffineTile")
+//        filterTex?.setValue(CIImage(CGImage: (textureImage?.CGImage)!), forKey: kCIInputImageKey)
+//        textureImg = UIImage(CIImage: (filterTex?.outputImage)!)
+        
+        var textureImg = UIImage(color: UIColor(patternImage: textureImage!), size: CGSizeMake(3000, 3000))!
         UIImageWriteToSavedPhotosAlbum(textureImg, nil, nil, nil)
         
         let bgImage = CIImage(CGImage: (textureImg.CGImage)!)
