@@ -22,12 +22,12 @@ extension UIImage {
     @param image The background image that will be masked.
     @param mask The mask image.
     @return The image masked by the mask image.*/
-    class func maskedImage(image image: UIImage, withMask mask: UIImage) -> UIImage {
+    class func maskedImage(image: UIImage, withMask mask: UIImage) -> UIImage {
         //Get the alpha info
-        let alphaInfo: CGImageAlphaInfo = CGImageGetAlphaInfo(mask.CGImage)
+        let alphaInfo: CGImageAlphaInfo = mask.cgImage!.alphaInfo
         
         //Do we have an alpha channel?
-        if alphaInfo == CGImageAlphaInfo.First || alphaInfo == CGImageAlphaInfo.Last || alphaInfo == CGImageAlphaInfo.PremultipliedFirst || alphaInfo == CGImageAlphaInfo.PremultipliedLast {
+        if alphaInfo == CGImageAlphaInfo.first || alphaInfo == CGImageAlphaInfo.last || alphaInfo == CGImageAlphaInfo.premultipliedFirst || alphaInfo == CGImageAlphaInfo.premultipliedLast {
             //Yes
             return UIImage.maskedImage(image, withAlphaMask: mask)
         } else {
@@ -40,12 +40,12 @@ extension UIImage {
     @param color The color of the new image.
     @param mask The mask image.
     @return An icon of the given color masked by the mask image.*/
-    class func maskedImage(color color: UIColor, withMask mask: UIImage) -> UIImage {
+    class func maskedImage(color: UIColor, withMask mask: UIImage) -> UIImage {
         //Get the alpha info
-        let alphaInfo: CGImageAlphaInfo = CGImageGetAlphaInfo(mask.CGImage)
+        let alphaInfo: CGImageAlphaInfo = mask.cgImage!.alphaInfo
         
         //Do we have an alpha channel?
-        if alphaInfo == CGImageAlphaInfo.First || alphaInfo == CGImageAlphaInfo.Last || alphaInfo == CGImageAlphaInfo.PremultipliedFirst || alphaInfo == CGImageAlphaInfo.PremultipliedLast {
+        if alphaInfo == CGImageAlphaInfo.first || alphaInfo == CGImageAlphaInfo.last || alphaInfo == CGImageAlphaInfo.premultipliedFirst || alphaInfo == CGImageAlphaInfo.premultipliedLast {
             //Yes
             return UIImage.maskedImage(color, withAlphaMask: mask)
         } else {
@@ -54,81 +54,81 @@ extension UIImage {
         }
     }
     
-    private class func maskedImage(image: UIImage, withAlphaMask mask: UIImage) -> UIImage {
+    fileprivate class func maskedImage(_ image: UIImage, withAlphaMask mask: UIImage) -> UIImage {
         //First draw the background centered on an image the same size as the mask. This helps solve problems if the images are different sizes. Ususally the background is larger than the mask.
         UIGraphicsBeginImageContextWithOptions(mask.size, false, mask.scale)
-        image.drawInRect(CGRectMake((mask.size.width - image.size.width) / 2.0, (mask.size.height - image.size.height) / 2.0, image.size.width, image.size.height))
-        let iconBackground: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        image.draw(in: CGRect(x: (mask.size.width - image.size.width) / 2.0, y: (mask.size.height - image.size.height) / 2.0, width: image.size.width, height: image.size.height))
+        let iconBackground: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         
         //Create the mask
-        let context = CGBitmapContextCreate(nil, CGImageGetWidth(mask.CGImage), CGImageGetHeight(mask.CGImage), 8, 0, CGColorSpaceCreateDeviceRGB(), CGBitmapInfo(rawValue: CGImageAlphaInfo.Only.rawValue).rawValue)
-        CGContextDrawImage(context, CGRectMake(0, 0, mask.size.width * mask.scale, mask.size.height * mask.scale), mask.CGImage)
-        let maskRef: CGImageRef = CGBitmapContextCreateImage(context)!
+        let context = CGContext(data: nil, width: (mask.cgImage?.width)!, height: (mask.cgImage?.height)!, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.alphaOnly.rawValue).rawValue)
+        context?.draw(mask.cgImage!, in: CGRect(x: 0, y: 0, width: mask.size.width * mask.scale, height: mask.size.height * mask.scale))
+        let maskRef: CGImage = context!.makeImage()!
         
         //Mask the image
-        let masked: CGImageRef = CGImageCreateWithMask(iconBackground.CGImage, maskRef)!
+        let masked: CGImage = iconBackground.cgImage!.masking(maskRef)!
         
         //Finished
-        return UIImage(CGImage: masked, scale: mask.scale, orientation: mask.imageOrientation)
+        return UIImage(cgImage: masked, scale: mask.scale, orientation: mask.imageOrientation)
     }
     
-    private class func maskedImage(image: UIImage, withNonAlphaMask mask: UIImage) -> UIImage {
+    fileprivate class func maskedImage(_ image: UIImage, withNonAlphaMask mask: UIImage) -> UIImage {
         //First draw the background centered on an image the same size as the mask. This helps solve problems if the images are different sizes. Ususally the background is larger than the mask.
         UIGraphicsBeginImageContextWithOptions(mask.size, false, mask.scale)
-        image.drawInRect(CGRectMake((mask.size.width - image.size.width) / 2.0, (mask.size.height - image.size.height) / 2.0, image.size.width, image.size.height))
-        let iconBackground: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        image.draw(in: CGRect(x: (mask.size.width - image.size.width) / 2.0, y: (mask.size.height - image.size.height) / 2.0, width: image.size.width, height: image.size.height))
+        let iconBackground: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         
         //Create the mask
-        let maskRef: CGImageRef = CGImageMaskCreate(CGImageGetWidth(mask.CGImage), CGImageGetHeight(mask.CGImage), CGImageGetBitsPerComponent(mask.CGImage), CGImageGetBitsPerPixel(mask.CGImage), CGImageGetBytesPerRow(mask.CGImage), CGImageGetDataProvider(mask.CGImage), nil, false)!
+        let maskRef: CGImage = CGImage(maskWidth: mask.cgImage!.width, height: mask.cgImage!.height, bitsPerComponent: mask.cgImage!.bitsPerComponent, bitsPerPixel: mask.cgImage!.bitsPerPixel, bytesPerRow: mask.cgImage!.bytesPerRow, provider: mask.cgImage!.dataProvider!, decode: nil, shouldInterpolate: false)!
         
         //Mask the image
-        let masked: CGImageRef = CGImageCreateWithMask(iconBackground.CGImage, maskRef)!
+        let masked: CGImage = iconBackground.cgImage!.masking(maskRef)!
         
         //Finished
-        return UIImage(CGImage: masked, scale: mask.scale, orientation: mask.imageOrientation)
+        return UIImage(cgImage: masked, scale: mask.scale, orientation: mask.imageOrientation)
     }
     
-    private class func maskedImage(color: UIColor, withAlphaMask mask: UIImage) -> UIImage {
+    fileprivate class func maskedImage(_ color: UIColor, withAlphaMask mask: UIImage) -> UIImage {
         //First draw the background color into an image
         UIGraphicsBeginImageContextWithOptions(mask.size, false, mask.scale)
         color.setFill()
-        UIRectFill(CGRectMake(0, 0, mask.size.width, mask.size.height))
-        let iconBackground: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIRectFill(CGRect(x: 0, y: 0, width: mask.size.width, height: mask.size.height))
+        let iconBackground: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         
         //Create the mask
-        let context = CGBitmapContextCreate(nil, CGImageGetWidth(mask.CGImage), CGImageGetHeight(mask.CGImage), 8, 0, CGColorSpaceCreateDeviceRGB(), CGBitmapInfo(rawValue: CGImageAlphaInfo.Only.rawValue).rawValue)
-        CGContextDrawImage(context, CGRectMake(0, 0, mask.size.width * mask.scale, mask.size.height * mask.scale), mask.CGImage)
-        let maskRef: CGImageRef = CGBitmapContextCreateImage(context)!
+        let context = CGContext(data: nil, width: (mask.cgImage?.width)!, height: (mask.cgImage?.height)!, bitsPerComponent: 8, bytesPerRow: 0, space: CGColorSpaceCreateDeviceRGB(), bitmapInfo: CGBitmapInfo(rawValue: CGImageAlphaInfo.alphaOnly.rawValue).rawValue)
+        context?.draw(mask.cgImage!, in: CGRect(x: 0, y: 0, width: mask.size.width * mask.scale, height: mask.size.height * mask.scale))
+        let maskRef: CGImage = context!.makeImage()!
         
         //Mask the image
-        let masked: CGImageRef = CGImageCreateWithMask(iconBackground.CGImage, maskRef)!
+        let masked: CGImage = iconBackground.cgImage!.masking(maskRef)!
         
         //Finished
-        return UIImage(CGImage: masked, scale: mask.scale, orientation: mask.imageOrientation)
+        return UIImage(cgImage: masked, scale: mask.scale, orientation: mask.imageOrientation)
     }
     
-    private class func maskedImage(color: UIColor, withNonAlphaMask mask: UIImage) -> UIImage {
+    fileprivate class func maskedImage(_ color: UIColor, withNonAlphaMask mask: UIImage) -> UIImage {
         //First draw the background color into an image
         UIGraphicsBeginImageContextWithOptions(mask.size, false, mask.scale)
         color.setFill()
-        UIRectFill(CGRectMake(0, 0, mask.size.width, mask.size.height))
-        let iconBackground: UIImage = UIGraphicsGetImageFromCurrentImageContext()
+        UIRectFill(CGRect(x: 0, y: 0, width: mask.size.width, height: mask.size.height))
+        let iconBackground: UIImage = UIGraphicsGetImageFromCurrentImageContext()!
         UIGraphicsEndImageContext()
         
         //Create the mask
-        let maskRef: CGImageRef = CGImageMaskCreate(CGImageGetWidth(mask.CGImage), CGImageGetHeight(mask.CGImage), CGImageGetBitsPerComponent(mask.CGImage), CGImageGetBitsPerPixel(mask.CGImage), CGImageGetBytesPerRow(mask.CGImage), CGImageGetDataProvider(mask.CGImage), nil, false)!
+        let maskRef: CGImage = CGImage(maskWidth: mask.cgImage!.width, height: mask.cgImage!.height, bitsPerComponent: mask.cgImage!.bitsPerComponent, bitsPerPixel: mask.cgImage!.bitsPerPixel, bytesPerRow: mask.cgImage!.bytesPerRow, provider: mask.cgImage!.dataProvider!, decode: nil, shouldInterpolate: false)!
         
         //Mask the image
-        let masked: CGImageRef = CGImageCreateWithMask(iconBackground.CGImage, maskRef)!
+        let masked: CGImage = iconBackground.cgImage!.masking(maskRef)!
         
         //Finished
-        return UIImage(CGImage: masked, scale: mask.scale, orientation: mask.imageOrientation)
+        return UIImage(cgImage: masked, scale: mask.scale, orientation: mask.imageOrientation)
     }
     
-    public func squareCroppedImage(length:CGFloat) -> UIImage {
+    public func squareCroppedImage(_ length:CGFloat) -> UIImage {
         
         // input size comes from image
         let inputSize = self.size;
@@ -137,42 +137,42 @@ extension UIImage {
         let adjustedLength = ceil(length);
         
         // output size has sideLength for both dimensions
-        let outputSize = CGSizeMake(adjustedLength, adjustedLength);
+        let outputSize = CGSize(width: adjustedLength, height: adjustedLength);
         
         // calculate scale so that smaller dimension fits sideLength
         let scale = max(adjustedLength / inputSize.width,
             adjustedLength / inputSize.height);
         
         // scaling the image with this scale results in this output size
-        let scaledInputSize = CGSizeMake(inputSize.width * scale,
-            inputSize.height * scale);
+        let scaledInputSize = CGSize(width: inputSize.width * scale,
+            height: inputSize.height * scale);
         
         // determine point in center of "canvas"
-        let center = CGPointMake(outputSize.width/2.0,
-            outputSize.height/2.0);
+        let center = CGPoint(x: outputSize.width/2.0,
+            y: outputSize.height/2.0);
         
         // calculate drawing rect relative to output Size
-        let outputRect = CGRectMake(center.x - scaledInputSize.width/2.0,
-            center.y - scaledInputSize.height/2.0,
-            scaledInputSize.width,
-            scaledInputSize.height);
+        let outputRect = CGRect(x: center.x - scaledInputSize.width/2.0,
+            y: center.y - scaledInputSize.height/2.0,
+            width: scaledInputSize.width,
+            height: scaledInputSize.height);
         
         UIGraphicsBeginImageContextWithOptions(outputSize, true, 0);
         let ctx = UIGraphicsGetCurrentContext();
-        CGContextSetInterpolationQuality(ctx, CGInterpolationQuality.High);
+        ctx!.interpolationQuality = CGInterpolationQuality.high;
         
-        self.drawInRect(outputRect);
+        self.draw(in: outputRect);
         
         let outputImage = UIGraphicsGetImageFromCurrentImageContext();
         
         UIGraphicsEndImageContext();
         
-        return outputImage;
+        return outputImage!;
     }
     
     func invertedImage() -> UIImage? {
         
-        let img = CoreImage.CIImage(CGImage: self.CGImage!)
+        let img = CoreImage.CIImage(cgImage: self.cgImage!)
         
         let filter = CIFilter(name: "CIColorInvert")
         filter!.setDefaults()
@@ -181,24 +181,24 @@ extension UIImage {
         
         let context = CIContext(options:nil)
         
-        let cgimg = context.createCGImage(filter!.outputImage!, fromRect: filter!.outputImage!.extent)
+        let cgimg = context.createCGImage(filter!.outputImage!, from: filter!.outputImage!.extent)
         
-        return UIImage(CGImage: cgimg)
+        return UIImage(cgImage: cgimg!)
     }
     
-    func withInvertedMaskFrom(image:UIImage, position:CGPoint) -> UIImage {
+    func withInvertedMaskFrom(_ image:UIImage, position:CGPoint) -> UIImage {
 //        UIGraphicsBeginImageContextWithOptions(size, false, scale)
         UIGraphicsBeginImageContext(size)
-        drawAtPoint(CGPointZero)
-        image.drawAtPoint(position, blendMode: CGBlendMode.DestinationOut, alpha: 1.0)
+        draw(at: CGPoint.zero)
+        image.draw(at: position, blendMode: CGBlendMode.destinationOut, alpha: 1.0)
         let result = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
-        return result
+        return result!
     }
     
-    func getPixelColor(pos: CGPoint) -> UIColor {
+    func getPixelColor(_ pos: CGPoint) -> UIColor {
         
-        let pixelData = CGDataProviderCopyData(CGImageGetDataProvider(self.CGImage))
+        let pixelData = self.cgImage?.dataProvider?.data
         let data: UnsafePointer<UInt8> = CFDataGetBytePtr(pixelData)
         
         let pixelInfo: Int = ((Int(self.size.width) * Int(pos.y)) + Int(pos.x)) * 4
@@ -211,15 +211,46 @@ extension UIImage {
         return UIColor(red: r, green: g, blue: b, alpha: a)
     }
     
-    func croppedImage(area: CGRect) -> UIImage? {
+    func croppedImage(_ area: CGRect) -> UIImage? {
         
-        if let imgRef = CGImageCreateWithImageInRect(self.CGImage, area) {
-            let croppedImage = UIImage(CGImage: imgRef)
+        if let imgRef = self.cgImage?.cropping(to: area) {
+            let croppedImage = UIImage(cgImage: imgRef)
             
             return croppedImage
         } else {
             return nil
         }
+    }
+    
+    func maskAndReplaceImage(_ maskImage: UIImage?, textureImage: UIImage?) -> UIImage {
+        guard maskImage != nil && textureImage != nil else {
+            return self
+        }
+        
+        let inputImage = CIImage(cgImage: self.cgImage!)
+        let bgImage = CIImage(cgImage: (textureImage?.cgImage)!)
+        let maskCIImage = CIImage(cgImage: (maskImage?.cgImage)!)
+
+        
+        let context = CIContext(options: nil)
+        
+//        NSLog(String(describing: self.size))
+//        NSLog(String(describing: maskImage?.size))
+//        NSLog(String(describing: tex.size))
+        
+        if let filter = CIFilter(name: "CIBlendWithAlphaMask") {
+            filter.setValue(bgImage, forKey: kCIInputImageKey)
+            filter.setValue(inputImage, forKey: kCIInputBackgroundImageKey)
+            filter.setValue(maskCIImage, forKey: kCIInputMaskImageKey)
+            
+            if let result = filter.outputImage {
+                // TODO: Time consuming task
+                let cgImg = context.createCGImage(result, from: result.extent)
+                return UIImage(cgImage: cgImg!)
+            }
+        }
+        
+        return self
     }
     
     public convenience init?(color: UIColor, size: CGSize = CGSize(width: 1, height: 1)) {
@@ -230,7 +261,7 @@ extension UIImage {
         let image = UIGraphicsGetImageFromCurrentImageContext()
         UIGraphicsEndImageContext()
         
-        guard let cgImage = image?.CGImage else { return nil }
-        self.init(CGImage: cgImage)
+        guard let cgImage = image?.cgImage else { return nil }
+        self.init(cgImage: cgImage)
     }
 }
